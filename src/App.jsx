@@ -7,42 +7,51 @@ function MenuButton(props) {
     <a href= {filename}>{props.pagename}</a>
   )
 }
+function NavMenu(){
+  return(
+    <nav>
+            <MenuButton pagename="Home"></MenuButton>
+            <MenuButton pagename="Learn"></MenuButton>
+            <MenuButton pagename="Statistics"></MenuButton>
+    
+    </nav>
+  )
+}
 function App(props) {
   const [count, setCount] = useState(0)
   switch (props.pagename) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
     case "main":
       return (
         <>
-          <nav>
-            <MenuButton pagename="Home"></MenuButton>
-            <MenuButton pagename="Learn"></MenuButton>
-            <MenuButton pagename="Statistics"></MenuButton>
+          <NavMenu/>
+          <select> //select the vocab set to operate on
             
-          </nav>
+          </select>
+          <form>
+            <label htmlFor='terminput'>Term</label>
+            <input id='terminput'></input>
+            <label htmlFor='definitioninput'>Definition</label>
+            <input id='terminput'></input>
+            <label htmlFor='exampleinput'>Example sentence</label>
+            <input id='exampleinput'></input>
+          </form> //a form to create a new word
         </>
       )
     case "learn":
       return(
         <>
-          <nav>
-            <MenuButton pagename="Home"></MenuButton>
-            <MenuButton pagename="Learn"></MenuButton>
-            <MenuButton pagename="Statistics"></MenuButton>
-    
-          </nav>
+          <NavMenu/>
+
         </>
       )
     case "statistics":
       return(
         <>
-          <nav>
-            <MenuButton pagename="Home"></MenuButton>
-            <MenuButton pagename="Learn"></MenuButton>
-            <MenuButton pagename="Statistics"></MenuButton>
-
-            <h2>Number of words learned:</h2>
-            <h2>Quiz score:</h2>
-          </nav>
+          
+          <NavMenu/>
+          <h2>Number of words learned:</h2>
+          <h2>Quiz score:</h2>
+          
         </>
       )
     default:
