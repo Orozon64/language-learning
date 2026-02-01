@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-
+import axios from 'axios';
 function MenuButton(props) {
   let filename = props.pagename.toLowerCase() + ".html"
   return(
@@ -17,6 +17,9 @@ function NavMenu(){
     </nav>
   )
 }
+function CreateWordset(params) {
+  fetch()
+}
 function App(props) {
   const [count, setCount] = useState(0)
   switch (props.pagename) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
@@ -27,7 +30,7 @@ function App(props) {
           <select> //select the vocab set to operate on
             
           </select>
-          <form>
+          <form onSubmit={CreateWordset}>
             <label htmlFor='terminput'>Term</label>
             <input id='terminput'></input>
             <label htmlFor='definitioninput'>Definition</label>

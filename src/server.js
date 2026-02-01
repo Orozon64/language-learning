@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
   database: 'my_db'
 })
 function getWordsByWordsetId(wordsetId) {
-  con.connect(function(err) {
+  connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
     let sql = "SELECT * FROM words WHERE Wordset_ID = " + wordsetId +";";
@@ -18,29 +18,31 @@ function getWordsByWordsetId(wordsetId) {
       query_result = result;
     });
   });
+  connection.end();
   return query_result;
 }
 function createWordset(name) {
-  con.connect(function(err) {
+  connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
     let sql = "INSERT INTO wordsets (Name) VALUES (" + name + ");";
     let query_result;
-    con.query(sql, function (err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
     });
   });
-
+  connection.end()
 }
 function createWord(wordsetID, term, definition, example) {
-  con.connect(function(err) {
+  connection.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
     let sql = "INSERT INTO words (Wordset_ID, Term, Definition, Example) VALUES (" + wordsetID +"," + term+","+ definition+","+ example+ ");";
     let query_result;
-    con.query(sql, function (err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
     });
   });
+  connection.end()
 
 }
