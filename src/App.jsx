@@ -17,11 +17,36 @@ function NavMenu(){
     </nav>
   )
 }
-function CreateWordset(params) {
-  fetch()
-}
+
+
 function App(props) {
-  const [count, setCount] = useState(0)
+  
+  const [term, setTerm] = useState("")
+  const [definition, setDefinition] = useState("")
+  const [example, setExample] = useState("")
+  const [wordsets, setWordsets] = useState([]) //will have to be separated by wordset
+
+  const [words, setWords] = useState([]) //will have to be separated by wordset
+  function CreateWord(e) {
+    e.preventDefault()
+    axios.post("http://localhost:5000/words", {term, definition, example}).then
+  }
+  function handleChange(e) {
+    switch (e.target.id) { //this is either brilliant or stupid, we'll see
+      case 'terminput':
+        setTerm(e.target.value)
+        break;
+      case 'definitioninput':
+        setDefinition(e.target.value)
+        break
+      case 'exampleinput':
+        setExample(e.target.value)
+        break
+      default:
+        console.log("Form submit error!")
+        break;
+    }
+  }
   switch (props.pagename) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
     case "main":
       return (
@@ -30,13 +55,13 @@ function App(props) {
           <select> //select the vocab set to operate on
             
           </select>
-          <form onSubmit={CreateWordset}>
+          <form onSubmit={CreateWord}>
             <label htmlFor='terminput'>Term</label>
-            <input id='terminput'></input>
+            <input id='terminput' value={term} onChange={handleChange}/>
             <label htmlFor='definitioninput'>Definition</label>
-            <input id='terminput'></input>
+            <input id='definitioninput' value={definition} onChange={handleChange}/>
             <label htmlFor='exampleinput'>Example sentence</label>
-            <input id='exampleinput'></input>
+            <input id='exampleinput' value={example} onChange={handleChange}/>
           </form> //a form to create a new word
         </>
       )
