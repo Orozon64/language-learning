@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios';
 function MenuButton(props) {
@@ -20,16 +20,28 @@ function NavMenu(){
 
 
 function App(props) {
-  
+  //the 3 below are for the form
   const [term, setTerm] = useState("")
   const [definition, setDefinition] = useState("")
   const [example, setExample] = useState("")
-  const [wordsets, setWordsets] = useState([]) //will have to be separated by wordset
+
+  const [wordsets, setWordsets] = useState([])
 
   const [words, setWords] = useState([]) //will have to be separated by wordset
+  useEffect(()=>{ //get the data from the db
+    axios.get("http://localhost:5000/wordsets").then(res => setUsers(res.data))
+      .catch(err => console.log(err));
+  },[wordsets])
+  
+  useEffect(()=>{ //get the data from the db
+    axios.get("http://localhost:5000/words").then(res => setUsers(res.data))
+      .catch(err => console.log(err));
+  },[words])
   function CreateWord(e) {
     e.preventDefault()
-    axios.post("http://localhost:5000/words", {term, definition, example}).then
+    useEffect(()=>{
+          axios.post("http://localhost:5000/words", {term, definition, example}).then //THIS IS NOT COMPLETE
+    }, [])
   }
   function handleChange(e) {
     switch (e.target.id) { //this is either brilliant or stupid, we'll see
