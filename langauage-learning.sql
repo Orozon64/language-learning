@@ -20,7 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `langauage-learning`
 --
-
+CREATE DATABASE `langauage-learning`;
+USE `langauage-learning`;
 -- --------------------------------------------------------
 
 --

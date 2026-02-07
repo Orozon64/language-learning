@@ -29,18 +29,23 @@ function App(props) {
 
   const [words, setWords] = useState([]) //will have to be separated by wordset
   useEffect(()=>{ //get the data from the db
-    axios.get("http://localhost:5000/wordsets").then(res => setUsers(res.data))
-      .catch(err => console.log(err));
+    async () =>{
+      const response = await axios.get("http://localhost:8080/wordsets")
+      setWordsets(response.data)
+    }
   },[wordsets])
   
   useEffect(()=>{ //get the data from the db
-    axios.get("http://localhost:5000/words").then(res => setUsers(res.data))
-      .catch(err => console.log(err));
+    async () => {
+      const response = await axios.get("http://localhost:8080/words")
+      setWords(response.data)
+    }
   },[words])
+
   function CreateWord(e) {
     e.preventDefault()
     useEffect(()=>{
-          axios.post("http://localhost:5000/words", {term, definition, example}).then //THIS IS NOT COMPLETE
+          axios.post("http://localhost:8080/words", {term, definition, example}).then //THIS IS NOT COMPLETE
     }, [])
   }
   function handleChange(e) {
@@ -61,20 +66,28 @@ function App(props) {
   }
   switch (props.pagename) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
     case "main":
+      const wordsetOptions = []
+      for (let i = 0; i < wordsets.length; i++) {
+        console.log(wordsets[i])
+        wordsetOptions.push(
+          () =>{return <option value={wordsets[i]}></option> }
+        );
+      }
       return (
         <>
           <NavMenu/>
-          <select> //select the vocab set to operate on
-            
+          <select>
+            {wordsetOptions}
           </select>
           <form onSubmit={CreateWord}>
             <label htmlFor='terminput'>Term</label>
-            <input id='terminput' value={term} onChange={handleChange}/>
+            <input id='terminput' value={term} onChange={handleChange}/> <br />
             <label htmlFor='definitioninput'>Definition</label>
-            <input id='definitioninput' value={definition} onChange={handleChange}/>
+            <input id='definitioninput' value={definition} onChange={handleChange}/> <br />
             <label htmlFor='exampleinput'>Example sentence</label>
-            <input id='exampleinput' value={example} onChange={handleChange}/>
-          </form> //a form to create a new word
+            <input id='exampleinput' value={example} onChange={handleChange}/> <br />
+            <input type="submit" value='Add word'/>
+          </form> {/*a form to create a new word*/}
         </>
       )
     case "learn":
