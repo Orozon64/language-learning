@@ -1,26 +1,9 @@
-//the git repo was only in the fronted folder, so important changes aren't in it
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios';
-function MenuButton(props) {
-  let filename = props.pagename.toLowerCase() + ".html"
-  return(
-    <a href= {filename}>{props.pagename}</a>
-  )
-}
-function NavMenu(){
-  return(
-    <nav>
-            <MenuButton pagename="Home"></MenuButton>
-            <MenuButton pagename="Learn"></MenuButton>
-            <MenuButton pagename="Statistics"></MenuButton>
-    
-    </nav>
-  )
-}
-
-
+import 'bootstrap/dist/css/bootstrap.css';
 function App(props) {
+  const [currentPage, setCurrentPage] = useState("Home")
   //the 3 below are for the form
   const [term, setTerm] = useState("")
   const [definition, setDefinition] = useState("")
@@ -29,25 +12,40 @@ function App(props) {
   const [wordsets, setWordsets] = useState([])
 
   const [words, setWords] = useState([]) //will have to be separated by wordset
-  useEffect(()=>{ //get the data from the db
-    async () =>{
-      const response = await axios.get("http://localhost:8080/wordsets")
+  useEffect(()=>{
+    axios.get("http://localhost:8080/wordsets").then((response) =>{
       setWordsets(response.data)
-    }
-  },[wordsets])
-  
+      console.log(response.data)
+    })
+  }, [])
   useEffect(()=>{ //get the data from the db
     async () => {
       const response = await axios.get("http://localhost:8080/words")
       setWords(response.data)
     }
-  },[words])
-
-  function CreateWord(e) {
-    e.preventDefault()
-    useEffect(()=>{
-          axios.post("http://localhost:8080/words", {term, definition, example}).then //THIS IS NOT COMPLETE
-    }, [])
+  },[words]);
+  function MenuButton(props) {
+  
+    return(
+      <button onClick={
+        (e)=>{setCurrentPage(e.target.value)}
+      } value={props.siteName} className="btn btn-primary">{props.siteName}</button>
+  )
+}
+function NavMenu(){
+  return(
+    <nav>
+            <MenuButton siteName="Home"></MenuButton>
+            <MenuButton siteName="Learn"></MenuButton>
+            <MenuButton siteName="Statistics"></MenuButton>
+    
+    </nav>
+  )
+}
+  
+  function CreateWordset(e){
+    e.preventDefault();
+    
   }
   function handleChange(e) {
     switch (e.target.id) { //this is either brilliant or stupid, we'll see
@@ -65,40 +63,82 @@ function App(props) {
         break;
     }
   }
-  switch (props.pagename) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
-    case "main":
-      const wordsetOptions = []
-      for (let i = 0; i < wordsets.length; i++) {
-        console.log(wordsets[i])
-        wordsetOptions.push(
-          () =>{return <option value={wordsets[i]}></option> }
-        );
-      }
+  function startQuiz(e) {
+    e.preventDefault();
+
+  }
+  switch (currentPage) { //return the right content based on the pagename (we always return the nav menu, avoid the repetition)
+    case "Home":
+      const wordsetOptions = wordsets.map(wordset => <option value={wordset.Name}>{wordset.Name}</option>)
+      
       return (
         <>
           <NavMenu/>
-          <select>
-            {wordsetOptions}
-          </select>
-          <form onSubmit={CreateWord}>
-            <label htmlFor='terminput'>Term</label>
-            <input id='terminput' value={term} onChange={handleChange}/> <br />
-            <label htmlFor='definitioninput'>Definition</label>
-            <input id='definitioninput' value={definition} onChange={handleChange}/> <br />
-            <label htmlFor='exampleinput'>Example sentence</label>
-            <input id='exampleinput' value={example} onChange={handleChange}/> <br />
-            <input type="submit" value='Add word'/>
+          
+          <h2>Create a new word</h2>
+          <form onSubmit={
+            (e)=>{
+              e.preventDefault()
+              useEffect(()=>{
+                    axios.post("http://localhost:8080/words", {term, definition, example}).then //THIS IS NOT COMPLETE
+              }, [])
+            }
+          }>
+            <div className='form-group'>
+              <label htmlFor="wordsetSelect">Wordset:</label>
+              <select id='wordsetSelect' className='form-control'>
+                {wordsetOptions}
+              </select>
+            </div>
+            <div className='form-group'>
+              <label htmlFor='terminput'>Term:</label>
+              <input id='terminput' value={term} onChange={handleChange} className='form-control'/>
+            </div>
+            
+
+            <div className='form-group'>
+              <label htmlFor='definitioninput'>Definition:</label>
+              <input id='definitioninput' value={definition} onChange={handleChange} className='form-control'/>
+            </div>
+            
+
+            <div className='form-group'>
+              <label htmlFor='exampleinput'>Example sentence:</label>
+              <input id='exampleinput' value={example} onChange={handleChange} className='form-control'/>
+            </div>
+            
+            
+            <input type="submit" value='Add word' className='form-control'/>
           </form> {/*a form to create a new word*/}
+          <h2>Create a new wordset</h2>
+          <form onSubmit={CreateWordset}>
+            <div className='form-group'>
+              <label htmlFor='nameinput'>Name</label>
+              <input id='nameinput' type="text" className='form-control'/>
+            </div>
+            
+            <input type="submit" value="Create wordset" className='form-control' />
+          </form>
         </>
       )
-    case "learn":
+    case "Learn":
       return(
         <>
           <NavMenu/>
+          {/*the user will select a wordset they want to be tested on, then they'll be given a random definition and a selection of four random words, one will match the definition*/}
+          <form onSubmit={startQuiz}>
+            <label htmlFor="wordsetSelectQuiz">Wordset:</label>
+            <select id='wordsetSelectQuiz'>
+              {wordsetOptions}
+            </select> <br />
+            <input type="submit" value="Start" />
+          </form>
+          <div id='quizDiv'>
 
+          </div>
         </>
       )
-    case "statistics":
+    case "Statistics":
       return(
         <>
           
@@ -111,6 +151,7 @@ function App(props) {
     default:
       return(
         <>
+          <NavMenu></NavMenu>
           <h1>Oops - page not found!</h1>
           <p>Whatever langauge you're trying to learn, it likely lacks words for how lost you are.</p> 
         </>
