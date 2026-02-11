@@ -2,6 +2,16 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.css';
+function WordQuery(term, definition, example) { //moved to a separate function to allow hook calls. update: no, it has to be in a function componenet
+  useEffect(()=>{
+    axios.post("http://localhost:8080/words", {term, definition, example})
+  }, [])
+}
+function WordsetQuery(name) { //see above - split into 2 functions to avoid having too many optional params
+  useEffect(()=>{
+    axios.post("http://localhost:8080/wordsets", name)
+  }, [])
+}
 function App() {
   const [currentPage, setCurrentPage] = useState("Home")
   //the 3 below are for the create word form
@@ -16,17 +26,19 @@ function App() {
 
   const [words, setWords] = useState([]) //will have to be separated by wordset
 
-  const CreateWord = (e) =>{
+  const [quizDefinition, setQuizDefinition] = useState("")
+  const [quizAnswers, setQuizAnswers] = useState([])
+  const [quizStarted, setQuizStarted] = useState(false)
+
+  const[quizWordset, setQuizWordset] = useState("")
+  function CreateWord(e){
     e.preventDefault();
-    useEffect(()=>{
-        axios.post("http://localhost:8080/words", {term, definition, example})
-    }, [])
-  };
-  const CreateWordset = (e) =>{
+    WordQuery(term, definition, example);
+  }
+
+  function CreateWordset(e){
     e.preventDefault();
-    useEffect(()=>{
-        axios.post("http://localhost:8080/wordsets", {term, definition, example})
-    }, [])
+    WordsetQuery(wordsetName);
   }
   useEffect(()=>{
     axios.get("http://localhost:8080/wordsets").then((response) =>{
@@ -58,7 +70,33 @@ function App() {
       </nav>
     )
   }
+  function Quiz(props) {
+    const appropriateWords = []
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].Wordset_ID == props.Wordset_ID) {
+        appropriateWords.push(words[i]);
+      }
+      
+      
+    }
+    if (appropriateWords.length < 4) {
+      
+        return(
+        <div>
+          
+          <h2>This wordset is to small - a quiz requires a wordset with at least 4 words.</h2>
+          <button onClick={setQuizStarted(false)}>Go back</button>
+        </div>
+      )
+    }
+    return(
+      <div id='quizDiv'>
+        <h2 >Quiz: {quizWordset}</h2>
+        <p>{appropriateWords[Math.random].definition}</p>
 
+      </div>
+    )
+  }
   function handleChange(e) {
     switch (e.target.id) { //this is either brilliant or stupid, we'll see
       case 'terminput':
@@ -77,8 +115,7 @@ function App() {
   }
   function startQuiz(e) {
     e.preventDefault();
-    //first, make the form disappear, then reuse the code from physics quiz assignment
-    
+    setQuizStarted(true);
   }
   const wordsetOptions = wordsets.map(wordset => <option value={wordset.Name}>{wordset.Name}</option>)
 
@@ -131,23 +168,31 @@ function App() {
         </>
       )
     case "Learn":
-      return(
+      if(!quizStarted){
+        return(
         <>
           <NavMenu/>
           {/*the user will select a wordset they want to be tested on, then they'll be given a random definition and a selection of four random words, one will match the definition*/}
           <form onSubmit={startQuiz}>
             <div className='form-group'>
               <label htmlFor="wordsetSelectQuiz">Wordset:</label>
-              <select id='wordsetSelectQuiz' className='form-control'>
+              <select id='wordsetSelectQuiz' className='form-control' value={quizWordset} onChange={
+                (e)=>{setQuizWordset(e.target.value)}
+              }>
                 {wordsetOptions}
-              </select> 
+              </select>
+              
             </div>
             
             <input type="submit" value="Start" className='form-control'/>
           </form>
-          <div id='quizDiv'>
 
-          </div>
+        </>
+        )
+      }
+      return(
+        <>
+          <Quiz></Quiz>
         </>
       )
     case "Statistics":
