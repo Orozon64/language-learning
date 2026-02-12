@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Line } from 'react-chartjs-2';
+
 import './App.css'
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -12,6 +14,7 @@ function WordsetQuery(name) { //see above - split into 2 functions to avoid havi
     axios.post("http://localhost:8080/wordsets", name)
   }, [])
 }
+
 function App() {
   const [currentPage, setCurrentPage] = useState("Home")
   //the 3 below are for the create word form
@@ -31,6 +34,12 @@ function App() {
   const [quizStarted, setQuizStarted] = useState(false)
 
   const[quizWordset, setQuizWordset] = useState("")
+  const [appropriateWords, setAppropriteWords] = useState([])
+  const[quizScores, setQuizScores] = useState([]) //in percentages
+  const[quizScoresTotal, setQuizScoresTotal] = useState(0)
+
+
+  
   function CreateWord(e){
     e.preventDefault();
     WordQuery(term, definition, example);
@@ -70,33 +79,7 @@ function App() {
       </nav>
     )
   }
-  function Quiz(props) {
-    const appropriateWords = []
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].Wordset_ID == props.Wordset_ID) {
-        appropriateWords.push(words[i]);
-      }
-      
-      
-    }
-    if (appropriateWords.length < 4) {
-      
-        return(
-        <div>
-          
-          <h2>This wordset is to small - a quiz requires a wordset with at least 4 words.</h2>
-          <button onClick={setQuizStarted(false)}>Go back</button>
-        </div>
-      )
-    }
-    return(
-      <div id='quizDiv'>
-        <h2 >Quiz: {quizWordset}</h2>
-        <p>{appropriateWords[Math.random].definition}</p>
-
-      </div>
-    )
-  }
+  
   function handleChange(e) {
     switch (e.target.id) { //this is either brilliant or stupid, we'll see
       case 'terminput':
@@ -190,18 +173,36 @@ function App() {
         </>
         )
       }
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].Wordset_ID == props.Wordset_ID) {
+          setAppropriteWords([
+            ...appropriateWords, words[i]
+          ])
+        } 
+      }
+      if (appropriateWords.length < 4) {
+          
+          return(
+            <div>
+              
+              <h2>This wordset is to small - a quiz requires a wordset with at least 4 words.</h2>
+              <button onClick={setQuizStarted(false)}>Go back</button>
+            </div>
+          )
+        }
       return(
-        <>
-          <Quiz></Quiz>
-        </>
+        <div id='quizDiv'>
+        <h2 >Quiz: {quizWordset}</h2>
+        <p>{appropriateWords[Math.random].definition}</p>
+
+        </div>
       )
     case "Statistics":
       return(
         <>
           
           <NavMenu/>
-          <h2>Number of words learned:</h2>
-          <h2>Quiz score:</h2>
+          <h2>Average quiz score: {quizScoresTotal/quizScores.length}</h2>
           
         </>
       )
